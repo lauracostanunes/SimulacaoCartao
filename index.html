@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Simulador de Taxas – Finamore Rodas</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:       #1a2d5a;
+  --navy-dark:  #122040;
+  --navy-mid:   #243870;
+  --red:        #cc2020;
+  --red-hover:  #e03030;
+  --bg:         #f0f2f5;
+  --surface:    #ffffff;
+  --surface2:   #f7f8fa;
+  --border:     #dde1ea;
+  --border2:    #eaecf2;
+  --text:       #1a2035;
+  --text-mid:   #4a5570;
+  --text-muted: #8a96aa;
+  --green:      #0e6e3f;
+  --green-bg:   #e6f4ee;
+  --amber:      #a05010;
+  --amber-bg:   #fef4e0;
+  --blue-bg:    #eef2ff;
+  --blue-border:#c7d2fe;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── HEADER ─────────────────────────────────── */
+.app-header {
+  background: var(--navy);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.22);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px 9px;
+}
+
+.logo-wheel {
+  width: 44px; height: 44px; flex-shrink: 0;
+}
+
+.header-titles h1 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+}
+.header-titles p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 1px;
+}
+
+.red-bar { height: 3px; background: var(--red); }
+
+/* ─── TAB NAV ────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  background: var(--navy-dark);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex: 1;
+  min-width: 110px;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.tab-btn.active {
+  color: #fff;
+  border-bottom-color: var(--red);
+  background: rgba(255,255,255,0.06);
+}
+.tab-btn:hover:not(.active) { color: rgba(255,255,255,0.78); }
+
+/* ─── LAYOUT ─────────────────────────────────── */
+.main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 12px 48px;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ─── INPUT CARD ─────────────────────────────── */
+.input-card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.06);
+  padding: 18px 16px;
+  margin-bottom: 14px;
+}
+
+.input-lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.val-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+  max-width: 220px;
+}
+.val-prefix {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  pointer-events: none;
+}
+.val-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px 11px 34px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+.val-input::-webkit-outer-spin-button,
+.val-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.val-input:focus { border-color: var(--navy); }
+
+.btn-calc {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-calc:hover { background: var(--navy-mid); }
+
+.btn-pdf {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-pdf:hover { background: var(--red-hover); }
+.btn-pdf svg { width: 15px; height: 15px; }
+
+/* ─── SUMMARY CHIPS ──────────────────────────── */
+.chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.chip-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.chip-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.chip-val.green { color: var(--green); }
+.chip-val.red   { color: var(--red); }
+
+/* ─── TABLE CARD ─────────────────────────────── */
+.table-card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+/* Dual header */
+.dual-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.dh-lojista {
+  padding: 9px 14px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--navy);
+  background: var(--blue-bg);
+  border-right: 1px solid var(--border);
+}
+.dh-portador {
+  padding: 9px 14px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--green);
+  background: var(--green-bg);
+}
+
+/* ─── MOBILE CARD LIST (default for small screens) */
+.card-list { display: flex; flex-direction: column; }
+
+.row-card {
+  border-bottom: 1px solid var(--border2);
+  padding: 11px 14px;
+  transition: background 0.1s;
+}
+.row-card:last-child { border-bottom: none; }
+.row-card:hover { background: #f5f7ff; }
+.row-card.is-debito { background: var(--amber-bg); }
+.row-card.is-debito:hover { background: #fdebc8; }
+
+.rc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 6px;
+  padding: 3px 11px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  min-width: 40px;
+  text-align: center;
+}
+.is-debito .badge {
+  background: var(--amber-bg);
+  border-color: #f0b844;
+  color: var(--amber);
+}
+
+.rc-taxa {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.rc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+}
+
+.rc-item { display: flex; flex-direction: column; gap: 1px; }
+.rc-item-lbl {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.rc-item-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.rc-item-val.green { color: var(--green); }
+.rc-item-val.navy  { color: var(--navy); }
+
+.rc-divider {
+  height: 1px;
+  background: var(--border2);
+  margin: 7px 0;
+}
+
+.rc-section-lbl {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 5px;
+}
+.rc-section-lbl.lojista { color: var(--navy); }
+.rc-section-lbl.portador { color: var(--green); }
+
+/* ─── DESKTOP TABLE (hidden on small) ────────── */
+.table-scroll { display: none; overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead th {
+  padding: 9px 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+thead th:first-child { text-align: left; }
+tbody tr {
+  border-bottom: 1px solid var(--border2);
+  transition: background 0.1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f5f7ff; }
+tbody tr.is-debito { background: var(--amber-bg); }
+tbody tr.is-debito:hover { background: #fdebc8; }
+td {
+  padding: 9px 12px;
+  font-size: 13px;
+  text-align: right;
+  white-space: nowrap;
+}
+td:first-child { text-align: left; }
+.t-taxa   { color: var(--text-muted); font-size: 12px; }
+.t-recebe { color: var(--green); font-weight: 700; }
+.t-cobrar { color: var(--navy); font-weight: 700; }
+.divider-col { border-left: 2px solid var(--border); }
+
+/* ─── LILÁS GRID ─────────────────────────────── */
+.lilas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lilas-card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.lilas-hdr {
+  padding: 11px 15px;
+  font-size: 13px;
+  font-weight: 800;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.lh-vm   { background: var(--blue-bg); color: var(--navy); }
+.lh-vm   .dot { background: var(--navy); }
+.lh-eh   { background: #fff1f0; color: var(--red); }
+.lh-eh   .dot { background: var(--red); }
+.lh-amex { background: var(--green-bg); color: var(--green); }
+.lh-amex .dot { background: var(--green); }
+
+/* Lilas mobile cards */
+.lilas-rows { display: flex; flex-direction: column; }
+.lilas-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 14px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border2);
+  flex-wrap: wrap;
+}
+.lilas-row:last-child { border-bottom: none; }
+.lilas-row:hover { background: #f5f7ff; }
+.lilas-row.is-debito { background: var(--amber-bg); }
+
+.lr-badge { flex-shrink: 0; }
+.lr-data  { display: flex; flex: 1; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.lr-item  { display: flex; flex-direction: column; align-items: flex-end; min-width: 68px; }
+.lr-lbl   { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); font-weight: 700; }
+.lr-val   { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.lr-val.green { color: var(--green); }
+.lr-val.navy  { color: var(--navy); }
+.mpos { color: var(--green) !important; }
+.mneg { color: var(--red)   !important; }
+
+/* ─── DESKTOP breakpoint ─────────────────────── */
+@media (min-width: 640px) {
+  .main { padding: 20px 20px 48px; }
+  .card-list  { display: none; }
+  .table-scroll { display: block; }
+  .lilas-rows { display: none; }
+  /* show lilas table on desktop */
+  .lilas-tbl-wrap { display: block !important; }
+  .lilas-grid { flex-direction: row; flex-wrap: wrap; }
+  .lilas-card { flex: 1; min-width: 260px; }
+}
+
+/* ─── Lilas desktop table ─────────────────────── */
+.lilas-tbl-wrap {
+  display: none;
+  overflow-x: auto;
+}
+.lilas-table { width: 100%; border-collapse: collapse; min-width: 240px; }
+.lilas-table th {
+  padding: 8px 11px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+.lilas-table th:first-child { text-align: left; }
+.lilas-table td {
+  padding: 8px 11px;
+  font-size: 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+}
+.lilas-table tr:last-child td { border-bottom: none; }
+.lilas-table td:first-child { text-align: left; font-weight: 600; color: var(--text-mid); }
+.lilas-table tr:hover td { background: #f5f7ff; }
+.lilas-table tr.is-debito { background: var(--amber-bg); }
+
+/* ─── MODAL CLIENTE ──────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,20,50,0.55);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface);
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease;
+  overflow: hidden;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@media (min-width: 640px) {
+  .modal-overlay { align-items: center; }
+  .modal-box { border-radius: 16px; max-height: 85vh; }
+}
+.modal-header {
+  background: var(--navy);
+  padding: 16px 18px 0;
+  flex-shrink: 0;
+}
+.modal-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.modal-title { font-size: 16px; font-weight: 800; color: #fff; line-height: 1.2; }
+.modal-subtitle { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.modal-close {
+  background: rgba(255,255,255,0.15);
+  border: none; color: #fff; font-size: 18px;
+  width: 30px; height: 30px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; line-height: 1; transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.25); }
+.modal-valor-destaque {
+  background: var(--red);
+  margin: 10px -18px 0;
+  padding: 8px 18px;
+  font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 600;
+}
+.modal-valor-destaque span { font-size: 18px; font-weight: 800; color: #fff; margin-left: 6px; }
+.modal-body { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+.cliente-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 18px; border-bottom: 1px solid var(--border2); gap: 12px;
+}
+.cliente-row:last-child { border-bottom: none; }
+.cliente-row:hover { background: #f5f7ff; }
+.cliente-row.is-debito { background: var(--amber-bg); }
+.cliente-row.is-debito:hover { background: #fdebc8; }
+.cr-left { display: flex; align-items: center; gap: 12px; }
+.cr-badge {
+  display: inline-block; background: var(--blue-bg);
+  border: 1.5px solid var(--blue-border); border-radius: 7px;
+  padding: 4px 12px; font-size: 14px; font-weight: 800; color: var(--navy);
+  min-width: 54px; text-align: center;
+}
+.is-debito .cr-badge { background: var(--amber-bg); border-color: #f0b844; color: var(--amber); }
+.cr-desc { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.cr-right { text-align: right; }
+.cr-total { font-size: 17px; font-weight: 800; color: var(--navy); line-height: 1.2; }
+.cr-parcela { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.cr-parcela strong { color: var(--green); font-weight: 700; }
+.modal-footer {
+  padding: 14px 18px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-shrink: 0; background: var(--surface2);
+}
+.btn-share {
+  flex: 1; background: var(--navy); color: #fff; border: none;
+  border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background 0.15s;
+}
+.btn-share:hover { background: var(--navy-mid); }
+.btn-share svg { width: 17px; height: 17px; }
+.btn-share-pdf {
+  flex: 1; background: var(--red); color: #fff; border: none;
+  border-radius: 10px; padding: 13px; font-size: 14px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background 0.15s;
+}
+.btn-share-pdf:hover { background: var(--red-hover); }
+.btn-share-pdf svg { width: 17px; height: 17px; }
+.btn-cliente {
+  background: #fff; color: var(--navy); border: 2px solid var(--navy);
+  border-radius: 10px; padding: 11px 14px; font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn-cliente:hover { background: var(--blue-bg); }
+.btn-cliente svg { width: 15px; height: 15px; }
+@media print {
+  .modal-overlay { display: none !important; }
+}
+
+/* ─── FOOTER ──────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 18px 16px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* ─── PRINT ───────────────────────────────────── */
+@media print {
+  /* ── PDF LOJISTA: só tabela, sem interface ── */
+  body[data-printing] .app-header,
+  body[data-printing] .footer,
+  body[data-printing] .chips,
+  body[data-printing] .input-card,
+  body[data-printing] .card-list,
+  body[data-printing] .modal-overlay { display: none !important; }
+
+  body[data-printing] .main { padding: 0 !important; background: #fff !important; }
+  body[data-printing] body  { background: #fff !important; }
+
+  /* Esconde abas que não estão sendo impressas */
+  body[data-printing="vm"]    #tab-he,
+  body[data-printing="vm"]    #tab-lilas,
+  body[data-printing="he"]    #tab-vm,
+  body[data-printing="he"]    #tab-lilas,
+  body[data-printing="lilas"] #tab-vm,
+  body[data-printing="lilas"] #tab-he  { display: none !important; }
+
+  /* Mostra a aba certa mesmo sem class active */
+  body[data-printing="vm"]    #tab-vm,
+  body[data-printing="he"]    #tab-he,
+  body[data-printing="lilas"] #tab-lilas { display: block !important; }
+
+  /* Cabeçalho de impressão com logo */
+  body[data-printing] .tab-content::before {
+    content: '';
+    display: block;
+    border-bottom: 3px solid #1a2d5a;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  body[data-printing] .table-scroll { display: block !important; overflow: visible !important; }
+  body[data-printing] .lilas-rows   { display: none !important; }
+  body[data-printing] .lilas-tbl-wrap { display: block !important; }
+  body[data-printing] .lilas-grid   { flex-direction: column !important; gap: 16px !important; }
+  body[data-printing] .dual-header  { display: grid !important; }
+
+  body[data-printing] table { font-size: 11px; }
+  body[data-printing] thead th { background: #eef2ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .is-debito { background: #fef4e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .dh-lojista { background: #eef2ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .dh-portador { background: #e6f4ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .t-recebe { color: #0e6e3f !important; }
+  body[data-printing] .t-cobrar  { color: #1a2d5a !important; }
+  body[data-printing] .mpos { color: #0e6e3f !important; }
+  body[data-printing] .mneg { color: #cc2020 !important; }
+  body[data-printing] .table-card,
+  body[data-printing] .lilas-card { box-shadow: none !important; border: 1px solid #dde1ea !important; margin-bottom: 12px; }
+
+  /* ── PDF CLIENTE: só o modal ── */
+  body[data-printing="cliente"] .main,
+  body[data-printing="cliente"] .app-header,
+  body[data-printing="cliente"] .footer { display: none !important; }
+
+  body[data-printing="cliente"] .modal-overlay {
+    display: block !important;
+    position: static !important;
+    background: none !important;
+  }
+  body[data-printing="cliente"] .modal-box {
+    max-height: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+  }
+  body[data-printing="cliente"] .modal-footer { display: none !important; }
+  body[data-printing="cliente"] .modal-close  { display: none !important; }
+  body[data-printing="cliente"] .modal-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing="cliente"] .modal-valor-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing="cliente"] .is-debito { background: #fef4e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-top">
+    <svg class="logo-wheel" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="20" stroke="white" stroke-width="2.2"/>
+      <circle cx="22" cy="22" r="4.5" fill="white"/>
+      <line x1="22" y1="2"  x2="22" y2="17.5" stroke="white" stroke-width="2"/>
+      <line x1="22" y1="26.5" x2="22" y2="42" stroke="white" stroke-width="2"/>
+      <line x1="2"  y1="22" x2="17.5" y2="22" stroke="white" stroke-width="2"/>
+      <line x1="26.5" y1="22" x2="42" y2="22" stroke="white" stroke-width="2"/>
+      <line x1="7.6" y1="7.6" x2="18.8" y2="18.8" stroke="white" stroke-width="2"/>
+      <line x1="25.2" y1="25.2" x2="36.4" y2="36.4" stroke="white" stroke-width="2"/>
+      <line x1="36.4" y1="7.6" x2="25.2" y2="18.8" stroke="white" stroke-width="2"/>
+      <line x1="18.8" y1="25.2" x2="7.6" y2="36.4" stroke="white" stroke-width="2"/>
+      <rect x="2" y="28" width="40" height="5.5" rx="1" fill="#cc2020"/>
+    </svg>
+    <div class="header-titles">
+      <h1>FINAMORE RODAS</h1>
+      <p>Simulador de Taxas de Cartão</p>
+    </div>
+  </div>
+  <div class="red-bar"></div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('vm',this)">Visa &amp; Master</button>
+    <button class="tab-btn" onclick="switchTab('he',this)">Hiper &amp; Elo</button>
+    <button class="tab-btn" onclick="switchTab('lilas',this)">Comparativo</button>
+  </nav>
+</header>
+
+<div class="main">
+
+  <!-- ══ VISA & MASTER ══════════════════════════ -->
+  <div id="tab-vm" class="tab-content active">
+    <div class="input-card">
+      <div class="input-lbl">Valor de Venda</div>
+      <div class="input-row">
+        <div class="val-wrap">
+          <span class="val-prefix">R$</span>
+          <input type="number" class="val-input" id="val-vm" value="180" min="0" step="0.01" oninput="calcVM()">
+        </div>
+        <button class="btn-calc" onclick="calcVM()">Calcular</button>
+        <button class="btn-pdf" onclick="printTab('vm')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          PDF
+        </button>
+        <button class="btn-cliente" onclick="abrirCliente('vm')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Para o Cliente
+        </button>
+      </div>
+    </div>
+    <div class="chips" id="chips-vm"></div>
+
+    <div class="table-card">
+      <div class="dual-header">
+        <div class="dh-lojista">Taxas ao Lojista</div>
+        <div class="dh-portador">Taxas ao Portador</div>
+      </div>
+      <!-- Mobile cards -->
+      <div class="card-list" id="clist-vm"></div>
+      <!-- Desktop table -->
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
+            <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
+          </tr></thead>
+          <tbody id="tbody-vm"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HIPER & ELO ════════════════════════════ -->
+  <div id="tab-he" class="tab-content">
+    <div class="input-card">
+      <div class="input-lbl">Valor de Venda</div>
+      <div class="input-row">
+        <div class="val-wrap">
+          <span class="val-prefix">R$</span>
+          <input type="number" class="val-input" id="val-he" value="1440" min="0" step="0.01" oninput="calcHE()">
+        </div>
+        <button class="btn-calc" onclick="calcHE()">Calcular</button>
+        <button class="btn-pdf" onclick="printTab('he')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          PDF
+        </button>
+        <button class="btn-cliente" onclick="abrirCliente('he')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Para o Cliente
+        </button>
+      </div>
+    </div>
+    <div class="chips" id="chips-he"></div>
+
+    <div class="table-card">
+      <div class="dual-header">
+        <div class="dh-lojista">Taxas ao Lojista</div>
+        <div class="dh-portador">Taxas ao Portador</div>
+      </div>
+      <div class="card-list" id="clist-he"></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
+            <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
+          </tr></thead>
+          <tbody id="tbody-he"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COMPARATIVO ════════════════════════════ -->
+  <div id="tab-lilas" class="tab-content">
+    <div class="input-card">
+      <div class="input-lbl">Valor Base</div>
+      <div class="input-row">
+        <div class="val-wrap">
+          <span class="val-prefix">R$</span>
+          <input type="number" class="val-input" id="val-lilas" value="100" min="0" step="0.01" oninput="calcLilas()">
+        </div>
+        <button class="btn-calc" onclick="calcLilas()">Calcular</button>
+        <button class="btn-pdf" onclick="printTab('lilas')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          PDF
+        </button>
+      </div>
+    </div>
+    <div class="lilas-grid" id="lilas-grid"></div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  Finamore Rodas Auto Center &nbsp;·&nbsp; Tradição e Qualidade desde 2001
+</footer>
+
+<!-- ══ MODAL PARA O CLIENTE ══════════════════════════════ -->
+<div class="modal-overlay" id="modal-cliente" onclick="fecharSeOverlay(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-top">
+        <div>
+          <div class="modal-title" id="modal-bandeira">Parcelamento</div>
+          <div class="modal-subtitle">Finamore Rodas Auto Center</div>
+        </div>
+        <button class="modal-close" onclick="fecharCliente()">✕</button>
+      </div>
+      <div class="modal-valor-bar">
+        Valor da compra: <span id="modal-valor-txt">R$ 0,00</span>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-share" onclick="compartilharCliente()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Compartilhar
+      </button>
+      <button class="btn-modal-pdf" onclick="pdfCliente()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Salvar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── MODAL ─────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,20,50,0.52); z-index: 200;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); width: 100%; max-width: 480px;
+  max-height: 92vh; border-radius: 20px 20px 0 0;
+  display: flex; flex-direction: column;
+  animation: slideUp .22s ease; overflow: hidden;
+}
+@keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+@media(min-width:640px){
+  .modal-overlay{align-items:center;}
+  .modal-box{border-radius:16px;max-height:86vh;}
+}
+.modal-header { background: var(--navy); padding: 16px 18px 0; flex-shrink: 0; }
+.modal-header-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.modal-title  { font-size:16px; font-weight:800; color:#fff; line-height:1.2; }
+.modal-subtitle { font-size:11px; color:rgba(255,255,255,0.55); margin-top:2px; }
+.modal-close  {
+  background:rgba(255,255,255,0.15); border:none; color:#fff;
+  width:30px; height:30px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+  flex-shrink:0; transition:background .15s;
+}
+.modal-close:hover { background:rgba(255,255,255,0.28); }
+.modal-valor-bar {
+  background: var(--red); margin: 10px -18px 0; padding: 9px 18px;
+  font-size:13px; color:rgba(255,255,255,0.9); font-weight:600;
+}
+.modal-valor-bar span { font-size:19px; font-weight:800; color:#fff; margin-left:6px; }
+.modal-body   { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
+.cr-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 18px; border-bottom:1px solid var(--border2); gap:10px;
+}
+.cr-row:last-child { border-bottom:none; }
+.cr-row:hover { background:#f5f7ff; }
+.cr-row.is-debito { background:var(--amber-bg); }
+.cr-row.is-debito:hover { background:#fdebc8; }
+.cr-left { display:flex; align-items:center; gap:12px; }
+.cr-badge {
+  display:inline-block; background:var(--blue-bg);
+  border:1.5px solid var(--blue-border); border-radius:7px;
+  padding:4px 12px; font-size:14px; font-weight:800; color:var(--navy);
+  min-width:52px; text-align:center;
+}
+.is-debito .cr-badge { background:var(--amber-bg); border-color:#f0b844; color:var(--amber); }
+.cr-desc { font-size:12px; color:var(--text-muted); font-weight:500; }
+.cr-right { text-align:right; flex-shrink:0; }
+.cr-total  { font-size:17px; font-weight:800; color:var(--navy); line-height:1.2; }
+.cr-parcel { font-size:12px; color:var(--text-muted); margin-top:2px; }
+.cr-parcel strong { color:var(--green); font-weight:700; }
+.modal-footer {
+  padding:14px 18px; border-top:1px solid var(--border);
+  display:flex; gap:10px; flex-shrink:0; background:var(--surface2);
+}
+.btn-modal-share, .btn-modal-pdf {
+  flex:1; border:none; border-radius:10px; padding:13px;
+  font-size:14px; font-weight:700; font-family:inherit; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px; transition:background .15s;
+  color:#fff;
+}
+.btn-modal-share { background:var(--navy); }
+.btn-modal-share:hover { background:var(--navy-mid); }
+.btn-modal-pdf   { background:var(--red); }
+.btn-modal-pdf:hover { background:var(--red-hover); }
+.btn-modal-share svg, .btn-modal-pdf svg { width:17px; height:17px; }
+
+/* ── BOTÃO PARA O CLIENTE ──────────────────────────────── */
+.btn-cliente {
+  background:#fff; color:var(--navy); border:2px solid var(--navy);
+  border-radius:10px; padding:11px 14px; font-size:13px; font-weight:700;
+  font-family:inherit; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+  transition:all .15s; white-space:nowrap;
+}
+.btn-cliente:hover { background:var(--blue-bg); }
+.btn-cliente svg { width:15px; height:15px; }
+</style>
+
+<script>
+// ── RATES ──────────────────────────────────────────────────
+const VM={'Débito':0.0159,1:0.0379,2:0.0524,3:0.0628,4:0.0715,5:0.0791,6:0.0849,7:0.0971,8:0.1046,9:0.1122,10:0.1199,11:0.1273,12:0.1374,13:0.1425,14:0.15,15:0.1576,16:0.1652,17:0.1725,18:0.1799};
+const HE={'Débito':0.0199,1:0.0399,2:0.0596,3:0.0671,4:0.0746,5:0.0821,6:0.0897,7:0.0991,8:0.1066,9:0.1141,10:0.1216,11:0.1293,12:0.1394,13:0.1445,14:0.152,15:0.1596,16:0.1672,17:0.1745,18:0.1819};
+const LILAS={'Débito':{vm:0.0139,eh:0.017,amex:null},1:{vm:0.0269,eh:0.0369,amex:0.046},2:{vm:0.0583,eh:0.0583,amex:0.0596},3:{vm:0.077,eh:0.077,amex:0.077},4:{vm:0.0926,eh:0.0926,amex:0.0926},5:{vm:0.1054,eh:0.1054,amex:0.1054},6:{vm:0.1166,eh:0.1166,amex:0.1166},7:{vm:0.1257,eh:0.1257,amex:0.1257},8:{vm:0.1327,eh:0.1327,amex:0.1327},9:{vm:0.1372,eh:0.1372,amex:0.1372},10:{vm:0.1311,eh:0.1311,amex:0.1311},11:{vm:0.143,eh:0.143,amex:0.143},12:{vm:0.1445,eh:0.1445,amex:0.1445},13:{vm:0.158,eh:0.158,amex:0.158},14:{vm:0.153,eh:0.153,amex:0.1549},15:{vm:0.1596,eh:0.1596,amex:0.1626},16:{vm:0.1676,eh:0.1676,amex:0.1703},17:{vm:0.1787,eh:0.1787,amex:0.179},18:{vm:0.188,eh:0.188,amex:0.188}};
+const KEYS=['Débito',1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+
+// ── FORMAT ─────────────────────────────────────────────────
+const R = v=>v==null?'—':'R$\u00a0'+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const P = v=>v==null?'—':(v*100).toFixed(2).replace('.',',')+'\u00a0%';
+
+// ── BUILD ──────────────────────────────────────────────────
+function buildRows(valor,rates){
+  return KEYS.map(k=>{
+    const taxa=rates[k],n=k==='Débito'?null:k;
+    return{k,taxa,n,recebe:valor*(1-taxa),parcelaBase:n?valor/n:null,
+      totalCobrar:n?valor/(1-taxa):null,parcelaCobrar:n?valor/(1-taxa)/n:null};
+  });
+}
+
+// ── RENDER CARD LIST (mobile) ───────────────────────────────
+function renderCardList(id,rows,valor){
+  document.getElementById(id).innerHTML=rows.map(({k,taxa,n,recebe,parcelaBase,totalCobrar,parcelaCobrar})=>{
+    const deb=k==='Débito',lbl=deb?'Débito':k+'x';
+    const portador=deb?'':`
+      <div class="rc-divider"></div>
+      <div class="rc-section-lbl portador">💳 Portador</div>
+      <div class="rc-grid">
+        <div class="rc-item"><div class="rc-item-lbl">Total a cobrar</div><div class="rc-item-val navy">${R(totalCobrar)}</div></div>
+        <div class="rc-item"><div class="rc-item-lbl">Parcela cliente</div><div class="rc-item-val navy">${R(parcelaCobrar)}</div></div>
+        <div class="rc-item"><div class="rc-item-lbl">Lojista recebe</div><div class="rc-item-val green">${R(valor)}</div></div>
+      </div>`;
+    return`<div class="row-card${deb?' is-debito':''}">
+      <div class="rc-top"><span class="badge">${lbl}</span><span class="rc-taxa">Taxa: ${P(taxa)}</span></div>
+      <div class="rc-section-lbl lojista">📋 Lojista</div>
+      <div class="rc-grid">
+        ${deb?`<div class="rc-item"><div class="rc-item-lbl">Lojista recebe</div><div class="rc-item-val green">${R(recebe)}</div></div>`
+            :`<div class="rc-item"><div class="rc-item-lbl">Parcela base</div><div class="rc-item-val">${R(parcelaBase)}</div></div>
+              <div class="rc-item"><div class="rc-item-lbl">Lojista recebe</div><div class="rc-item-val green">${R(recebe)}</div></div>`}
+      </div>${portador}</div>`;
+  }).join('');
+}
+
+// ── RENDER TABLE (desktop) ─────────────────────────────────
+function renderTable(id,rows,valor){
+  document.getElementById(id).innerHTML=rows.map(({k,taxa,n,recebe,parcelaBase,totalCobrar,parcelaCobrar})=>{
+    const deb=k==='Débito',lbl=deb?'Débito':k+'x';
+    return`<tr class="${deb?'is-debito':''}">
+      <td><span class="badge">${lbl}</span></td>
+      <td class="t-taxa">${P(taxa)}</td>
+      <td>${deb?'—':R(parcelaBase)}</td>
+      <td class="t-recebe">${R(recebe)}</td>
+      <td class="divider-col t-cobrar">${deb?'—':R(totalCobrar)}</td>
+      <td class="t-taxa">${deb?'—':n+'x'}</td>
+      <td>${deb?'—':R(parcelaCobrar)}</td>
+      <td class="t-recebe">${deb?'—':R(valor)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER CHIPS ───────────────────────────────────────────
+function renderChips(id,valor,rows){
+  const deb=rows[0],v1=rows[1],v12=rows.find(r=>r.k===12);
+  document.getElementById(id).innerHTML=`
+    <div class="chip"><div class="chip-lbl">Valor de venda</div><div class="chip-val">${R(valor)}</div></div>
+    <div class="chip"><div class="chip-lbl">Débito — recebe</div><div class="chip-val green">${R(deb.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">À vista — recebe</div><div class="chip-val green">${R(v1.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">12x — recebe</div><div class="chip-val green">${R(v12.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">12x — cobra cliente</div><div class="chip-val red">${R(v12.totalCobrar)}</div></div>`;
+}
+
+function calcVM(){
+  const v=parseFloat(document.getElementById('val-vm').value)||0;
+  const rows=buildRows(v,VM);
+  renderCardList('clist-vm',rows,v); renderTable('tbody-vm',rows,v); renderChips('chips-vm',v,rows);
+}
+function calcHE(){
+  const v=parseFloat(document.getElementById('val-he').value)||0;
+  const rows=buildRows(v,HE);
+  renderCardList('clist-he',rows,v); renderTable('tbody-he',rows,v); renderChips('chips-he',v,rows);
+}
+
+// ── LILÁS ──────────────────────────────────────────────────
+function calcLilas(){
+  const valor=parseFloat(document.getElementById('val-lilas').value)||100;
+  const cards=[
+    {key:'vm',label:'Visa e Master',cls:'lh-vm',std:VM},
+    {key:'eh',label:'Elo e Hipercard',cls:'lh-eh',std:HE},
+    {key:'amex',label:'American Express',cls:'lh-amex',std:null}
+  ];
+  document.getElementById('lilas-grid').innerHTML=cards.map(ct=>{
+    const mobileRows=KEYS.map(k=>{
+      const lt=LILAS[k][ct.key],deb=k==='Débito',lbl=deb?'Débito':k+'x';
+      if(lt==null) return`<div class="lilas-row${deb?' is-debito':''}"><span class="badge lr-badge">${lbl}</span><div class="lr-data"><div class="lr-item"><div class="lr-lbl">Taxa</div><div class="lr-val">—</div></div></div></div>`;
+      const recebe=valor*(1-lt),st=ct.std?ct.std[k]:lt,tc=(deb||st==null)?null:valor/(1-st),mg=st!=null?st-lt:null,mc=mg==null?'':(mg>=0?'mpos':'mneg');
+      return`<div class="lilas-row${deb?' is-debito':''}"><span class="badge lr-badge">${lbl}</span>
+        <div class="lr-data">
+          <div class="lr-item"><div class="lr-lbl">Taxa lojista</div><div class="lr-val">${P(lt)}</div></div>
+          <div class="lr-item"><div class="lr-lbl">Recebe</div><div class="lr-val green">${R(recebe)}</div></div>
+          ${deb?'':tc!=null?`<div class="lr-item"><div class="lr-lbl">Cobra portador</div><div class="lr-val navy">${R(tc)}</div></div>`:''}
+          ${mg!=null?`<div class="lr-item"><div class="lr-lbl">Margem</div><div class="lr-val ${mc}">${P(mg)}</div></div>`:''}
+        </div></div>`;
+    }).join('');
+    const tblRows=KEYS.map(k=>{
+      const lt=LILAS[k][ct.key],deb=k==='Débito',lbl=deb?'Débito':k+'x';
+      if(lt==null) return`<tr class="${deb?'is-debito':''}"><td><span class="badge">${lbl}</span></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
+      const recebe=valor*(1-lt),st=ct.std?ct.std[k]:lt,tc=(deb||st==null)?null:valor/(1-st),mg=st!=null?st-lt:null,mc=mg==null?'':(mg>=0?'mpos':'mneg');
+      return`<tr class="${deb?'is-debito':''}"><td><span class="badge">${lbl}</span></td><td class="t-taxa">${P(lt)}</td>
+        <td class="t-recebe">${R(recebe)}</td><td class="t-cobrar">${deb?'—':(tc!=null?R(tc):'—')}</td>
+        <td class="${mc}">${mg!=null?P(mg):'—'}</td></tr>`;
+    }).join('');
+    return`<div class="lilas-card">
+      <div class="lilas-hdr ${ct.cls}"><span class="dot"></span>${ct.label}</div>
+      <div class="lilas-rows">${mobileRows}</div>
+      <div class="lilas-tbl-wrap"><table class="lilas-table">
+        <thead><tr><th>Parcelas</th><th>Taxa Lojista</th><th>Recebe</th><th>Cobra Portador</th><th>Margem</th></tr></thead>
+        <tbody>${tblRows}</tbody>
+      </table></div></div>`;
+  }).join('');
+}
+
+// ── TABS ───────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── PDF COMPLETO (só a tabela, via print CSS) ──────────────
+function printTab(tab){
+  const labels={vm:'Visa e Master',he:'Hiper e Elo',lilas:'Comparativo'};
+  document.title='Simulador Finamore – '+labels[tab];
+  document.body.setAttribute('data-printing',tab);
+  window.print();
+  document.body.removeAttribute('data-printing');
+  document.title='Simulador de Taxas – Finamore Rodas';
+}
+
+// ── MODAL PARA O CLIENTE ───────────────────────────────────
+let _cRows=[],_cValor=0,_cBandeira='';
+
+function abrirCliente(tipo){
+  const rates=tipo==='vm'?VM:HE;
+  const bandeira=tipo==='vm'?'Visa e Master':'Hiper e Elo';
+  const valor=parseFloat(document.getElementById(tipo==='vm'?'val-vm':'val-he').value)||0;
+  _cRows=buildRows(valor,rates); _cValor=valor; _cBandeira=bandeira;
+
+  document.getElementById('modal-bandeira').textContent='Parcelamento — '+bandeira;
+  document.getElementById('modal-valor-txt').textContent=R(valor);
+  document.getElementById('modal-body').innerHTML=_cRows.map(({k,n,totalCobrar,parcelaCobrar})=>{
+    const deb=k==='Débito';
+    if(deb) return`<div class="cr-row is-debito">
+      <div class="cr-left"><span class="cr-badge">Débito</span><span class="cr-desc">Pagamento à vista</span></div>
+      <div class="cr-right"><div class="cr-total">${R(valor)}</div><div class="cr-parcel">à vista no débito</div></div>
+    </div>`;
+    return`<div class="cr-row">
+      <div class="cr-left"><span class="cr-badge">${k}x</span><span class="cr-desc">${k} parcelas</span></div>
+      <div class="cr-right">
+        <div class="cr-total">${R(totalCobrar)}</div>
+        <div class="cr-parcel"><strong>${k}x de ${R(parcelaCobrar)}</strong></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('modal-cliente').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function fecharCliente(){
+  document.getElementById('modal-cliente').classList.remove('open');
+  document.body.style.overflow='';
+}
+function fecharSeOverlay(e){ if(e.target.id==='modal-cliente') fecharCliente(); }
+
+function compartilharCliente(){
+  const linhas=_cRows.map(({k,n,totalCobrar,parcelaCobrar})=>{
+    if(k==='Débito') return`Débito: ${R(_cValor)}`;
+    return`${k}x → ${R(totalCobrar)} (${k}x de ${R(parcelaCobrar)})`;
+  }).join('\n');
+  const msg=`*Finamore Rodas — Opções de Parcelamento*\n*${_cBandeira}*\nValor: ${R(_cValor)}\n\n${linhas}\n\n_Finamore Rodas Auto Center · Tradição e Qualidade desde 2001_`;
+  if(navigator.share){navigator.share({title:'Finamore Rodas',text:msg}).catch(()=>{});}
+  else{
+    navigator.clipboard.writeText(msg).then(()=>alert('Copiado!')).catch(()=>{
+      const t=document.createElement('textarea');t.value=msg;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);alert('Copiado!');
+    });
+  }
+}
+
+function pdfCliente(){
+  document.body.setAttribute('data-printing','cliente');
+  window.print();
+  document.body.removeAttribute('data-printing');
+}
+
+// ── INIT ───────────────────────────────────────────────────
+calcVM(); calcHE(); calcLilas();
+</script>
+</body>
+</html>
