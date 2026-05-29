@@ -673,28 +673,6 @@ td:first-child { text-align: left; }
   body[data-printing] .mneg { color: #cc2020 !important; }
   body[data-printing] .table-card,
   body[data-printing] .lilas-card { box-shadow: none !important; border: 1px solid #dde1ea !important; margin-bottom: 12px; }
-
-  /* ── PDF CLIENTE: só o modal ── */
-  body[data-printing="cliente"] .main,
-  body[data-printing="cliente"] .app-header,
-  body[data-printing="cliente"] .footer { display: none !important; }
-
-  body[data-printing="cliente"] .modal-overlay {
-    display: block !important;
-    position: static !important;
-    background: none !important;
-  }
-  body[data-printing="cliente"] .modal-box {
-    max-height: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    width: 100% !important;
-  }
-  body[data-printing="cliente"] .modal-footer { display: none !important; }
-  body[data-printing="cliente"] .modal-close  { display: none !important; }
-  body[data-printing="cliente"] .modal-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body[data-printing="cliente"] .modal-valor-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body[data-printing="cliente"] .is-debito { background: #fef4e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
@@ -1139,7 +1117,67 @@ function compartilharCliente(){
   }
 }
 
+function buildPrintPage(rows, valor, bandeira) {
+  const R2 = v => v==null?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const parcelaRows = rows.slice(1);
+  const logoSVG = `<svg width="42" height="42" viewBox="0 0 44 44" fill="none">
+    <circle cx="22" cy="22" r="20" stroke="white" stroke-width="2.2"/>
+    <circle cx="22" cy="22" r="4.5" fill="white"/>
+    <line x1="22" y1="2" x2="22" y2="17.5" stroke="white" stroke-width="2"/>
+    <line x1="22" y1="26.5" x2="22" y2="42" stroke="white" stroke-width="2"/>
+    <line x1="2" y1="22" x2="17.5" y2="22" stroke="white" stroke-width="2"/>
+    <line x1="26.5" y1="22" x2="42" y2="22" stroke="white" stroke-width="2"/>
+    <line x1="7.6" y1="7.6" x2="18.8" y2="18.8" stroke="white" stroke-width="2"/>
+    <line x1="25.2" y1="25.2" x2="36.4" y2="36.4" stroke="white" stroke-width="2"/>
+    <line x1="36.4" y1="7.6" x2="25.2" y2="18.8" stroke="white" stroke-width="2"/>
+    <line x1="18.8" y1="25.2" x2="7.6" y2="36.4" stroke="white" stroke-width="2"/>
+    <rect x="2" y="28" width="40" height="5.5" rx="1" fill="#cc2020"/>
+  </svg>`;
+  const cards = parcelaRows.map(({k,totalCobrar,parcelaCobrar}) => `
+    <div class="pc-card">
+      <div class="pc-card-top"><span class="pc-n">${k}x</span><span class="pc-tag">${k} parcelas</span></div>
+      <div class="pc-total">R$ ${R2(totalCobrar)}</div>
+      <div class="pc-parcela">${k}x de <strong>R$ ${R2(parcelaCobrar)}</strong></div>
+    </div>`).join('');
+  return `<div class="pp-wrap">
+    <div class="pp-header">${logoSVG}
+      <div class="pp-header-text">
+        <div class="pp-brand">FINAMORE RODAS</div>
+        <div class="pp-sub">Auto Center · Tradição e Qualidade desde 2001</div>
+      </div>
+    </div>
+    <div class="pp-red-bar"></div>
+    <div class="pp-title-row">
+      <div class="pp-title">Opções de Parcelamento</div>
+      <div class="pp-bandeira">${bandeira}</div>
+    </div>
+    <div class="pp-valor-row">
+      <span class="pp-valor-lbl">Valor da compra</span>
+      <span class="pp-valor-num">R$ ${R2(valor)}</span>
+    </div>
+    <div class="pc-debito">
+      <div><div class="pc-debito-label">💳 Débito</div><div class="pc-debito-desc">Pagamento à vista</div></div>
+      <div class="pc-debito-val">R$ ${R2(valor)}</div>
+    </div>
+    <div class="pp-grid">${cards}</div>
+    <div class="pp-footer">Os valores parcelados incluem repasse de taxa. Sujeito a aprovação da operadora do cartão.</div>
+  </div>`;
+}
+
 function pdfCliente(){
+  // Lê os valores dos dois inputs — assim as duas páginas ficam corretas independente de qual modal está aberto
+  const valorVM = parseFloat(document.getElementById('val-vm').value)||0;
+  const valorHE = parseFloat(document.getElementById('val-he').value)||0;
+
+  const rowsVM = buildRows(valorVM, VM);
+  const rowsHE = buildRows(valorHE, HE);
+
+  // Gera duas páginas separadas por quebra de página
+  document.getElementById('print-page').innerHTML =
+    buildPrintPage(rowsVM, valorVM, 'Visa e Master') +
+    '<div class="pp-page-break"></div>' +
+    buildPrintPage(rowsHE, valorHE, 'Hiper e Elo');
+
   document.body.setAttribute('data-printing','cliente');
   window.print();
   document.body.removeAttribute('data-printing');
@@ -1148,5 +1186,135 @@ function pdfCliente(){
 // ── INIT ───────────────────────────────────────────────────
 calcVM(); calcHE(); calcLilas();
 </script>
+
+<!-- Página dedicada de impressão para o cliente -->
+<div id="print-page"></div>
+
+<style>
+/* ── PRINT PAGE (oculta na tela, visível só no print) ─────── */
+#print-page { display: none; }
+
+@media print {
+  /* Esconde TUDO quando imprimindo cliente */
+  body[data-printing="cliente"] > *:not(#print-page) {
+    display: none !important;
+  }
+
+  body[data-printing="cliente"] #print-page {
+    display: block !important;
+  }
+
+  .pp-page-break {
+    page-break-after: always;
+    break-after: page;
+    height: 0;
+    display: block;
+  }
+
+  .pp-wrap {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #1a2035;
+    background: #fff;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pp-header {
+    background: #1a2d5a !important;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px 14px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pp-header-text { flex: 1; }
+  .pp-brand { font-size: 18px; font-weight: 800; color: #fff !important; letter-spacing: .04em; }
+  .pp-sub   { font-size: 11px; color: rgba(255,255,255,.6) !important; margin-top: 2px; }
+
+  .pp-red-bar {
+    height: 4px;
+    background: #cc2020 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pp-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 24px 0;
+  }
+  .pp-title    { font-size: 15px; font-weight: 800; color: #1a2d5a; }
+  .pp-bandeira { font-size: 12px; color: #8a96aa; font-weight: 600; }
+
+  .pp-valor-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #eef2ff !important;
+    margin: 10px 24px 14px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pp-valor-lbl { font-size: 12px; color: #4a5570; font-weight: 600; }
+  .pp-valor-num { font-size: 20px; font-weight: 800; color: #1a2d5a; }
+
+  .pc-debito {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fef4e0 !important;
+    border: 1.5px solid #f0b844;
+    border-radius: 10px;
+    margin: 0 24px 14px;
+    padding: 12px 18px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pc-debito-label { font-size: 14px; font-weight: 800; color: #a05010; }
+  .pc-debito-desc  { font-size: 11px; color: #a05010; margin-top: 2px; }
+  .pc-debito-val   { font-size: 20px; font-weight: 800; color: #1a2d5a; }
+
+  .pp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 24px;
+  }
+
+  .pc-card {
+    border: 1.5px solid #dde1ea;
+    border-radius: 9px;
+    padding: 10px 12px;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pc-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .pc-n      { font-size: 15px; font-weight: 800; color: #1a2d5a; }
+  .pc-tag    { font-size: 9px; color: #8a96aa; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .pc-total  { font-size: 14px; font-weight: 800; color: #1a2d5a; line-height: 1.2; }
+  .pc-parcela { font-size: 10px; color: #4a5570; margin-top: 3px; }
+  .pc-parcela strong { color: #0e6e3f; font-weight: 700; }
+
+  .pp-footer {
+    margin: 14px 24px 0;
+    padding-top: 10px;
+    border-top: 1px solid #dde1ea;
+    font-size: 9px;
+    color: #8a96aa;
+    text-align: center;
+  }
+}
+</style>
 </body>
 </html>
