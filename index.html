@@ -231,31 +231,23 @@ body {
 }
 
 /* Dual header */
-.dual-header {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* ─── SECTION HEADER ROW (inside thead) ──────── */
+.th-section {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 8px 14px;
+  text-align: center;
   border-bottom: 1px solid var(--border);
 }
-.dh-lojista {
-  padding: 9px 14px;
-  font-size: 10.5px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--navy);
+.th-lojista {
   background: var(--blue-bg);
-  border-right: 1px solid var(--border);
-  text-align: center;
+  color: var(--navy);
 }
-.dh-portador {
-  padding: 9px 14px;
-  font-size: 10.5px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--green);
+.th-portador {
   background: var(--green-bg);
-  text-align: center;
+  color: var(--green);
 }
 
 /* ─── MOBILE CARD LIST (default for small screens) */
@@ -650,8 +642,8 @@ td:first-child { text-align: left; }
   body[data-printing] table { font-size: 11px; }
   body[data-printing] thead th { background: #eef2ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body[data-printing] .is-debito { background: #fef4e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body[data-printing] .dh-lojista { background: #eef2ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body[data-printing] .dh-portador { background: #e6f4ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .th-lojista { background: #eef2ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-printing] .th-portador { background: #e6f4ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body[data-printing] .t-recebe { color: #0e6e3f !important; }
   body[data-printing] .t-cobrar  { color: #1a2d5a !important; }
   body[data-printing] .mpos { color: #0e6e3f !important; }
@@ -700,19 +692,21 @@ td:first-child { text-align: left; }
     <div class="chips" id="chips-vm"></div>
 
     <div class="table-card">
-      <div class="dual-header">
-        <div class="dh-lojista">Taxas ao Lojista</div>
-        <div class="dh-portador">Taxas ao Portador</div>
-      </div>
       <!-- Mobile cards -->
       <div class="card-list" id="clist-vm"></div>
       <!-- Desktop table -->
       <div class="table-scroll">
         <table>
-          <thead><tr>
-            <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
-            <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th colspan="4" class="th-section th-lojista">Taxas ao Lojista</th>
+              <th colspan="4" class="th-section th-portador divider-col">Taxas ao Portador</th>
+            </tr>
+            <tr>
+              <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
+              <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
+            </tr>
+          </thead>
           <tbody id="tbody-vm"></tbody>
         </table>
       </div>
@@ -742,17 +736,19 @@ td:first-child { text-align: left; }
     <div class="chips" id="chips-he"></div>
 
     <div class="table-card">
-      <div class="dual-header">
-        <div class="dh-lojista">Taxas ao Lojista</div>
-        <div class="dh-portador">Taxas ao Portador</div>
-      </div>
       <div class="card-list" id="clist-he"></div>
       <div class="table-scroll">
         <table>
-          <thead><tr>
-            <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
-            <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
-          </tr></thead>
+          <thead>
+            <tr>
+              <th colspan="4" class="th-section th-lojista">Taxas ao Lojista</th>
+              <th colspan="4" class="th-section th-portador divider-col">Taxas ao Portador</th>
+            </tr>
+            <tr>
+              <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
+              <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
+            </tr>
+          </thead>
           <tbody id="tbody-he"></tbody>
         </table>
       </div>
@@ -1117,7 +1113,7 @@ function buildPrintPage(rows, valor, bandeira) {
       <div class="pc-debito-val">R$ ${R2(valor)}</div>
     </div>
     <div class="pp-grid">${cards}</div>
-    <div class="pp-footer">Os valores parcelados incluem repasse de taxa. Sujeito a aprovação da operadora do cartão.</div>
+    <div class="pp-footer">Os valores parcelados incluem repasse de taxa.</div>
   </div>`;
 }
 
