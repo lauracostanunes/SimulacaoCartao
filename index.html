@@ -614,8 +614,10 @@ td:first-child { text-align: left; }
   /* Esconde abas que não estão sendo impressas */
   body[data-printing="vm"]    #tab-he,
   body[data-printing="vm"]    #tab-lilas,
+  body[data-printing="vm"]    #tab-comp,
   body[data-printing="he"]    #tab-vm,
   body[data-printing="he"]    #tab-lilas,
+  body[data-printing="he"]    #tab-comp,
   body[data-printing="lilas"] #tab-vm,
   body[data-printing="lilas"] #tab-he  { display: none !important; }
 
@@ -634,8 +636,8 @@ td:first-child { text-align: left; }
   }
 
   body[data-printing] .table-scroll { display: block !important; overflow: visible !important; }
-  body[data-printing] .lilas-rows   { display: none !important; }
-  body[data-printing] .lilas-tbl-wrap { display: block !important; }
+  body[data-printing] .card-list { display: none !important; }
+  body[data-printing] .table-scroll { display: block !important; }
   body[data-printing] .lilas-grid   { flex-direction: column !important; gap: 16px !important; }
   body[data-printing] .dual-header  { display: grid !important; }
 
@@ -651,6 +653,125 @@ td:first-child { text-align: left; }
   body[data-printing] .table-card,
   body[data-printing] .lilas-card { box-shadow: none !important; border: 1px solid #dde1ea !important; margin-bottom: 12px; }
 }
+
+/* ─── COMPARATIVO ─────────────────────────────── */
+.comp-input-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-style: italic;
+}
+.comp-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.comp-card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-left: 4px solid var(--navy);
+  transition: box-shadow 0.15s;
+}
+.comp-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 6px 20px rgba(0,0,0,0.08); }
+.comp-card.card-vm  { border-left-color: var(--navy); }
+.comp-card.card-he  { border-left-color: var(--red); }
+.comp-card.card-pv  { border-left-color: #9333ea; }
+
+.comp-card-left {}
+.comp-card-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.comp-card-taxa {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.comp-card-right { text-align: right; flex-shrink: 0; }
+.comp-card-recebe-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+.comp-card-recebe-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1.1;
+}
+.comp-debit-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.comp-parcelas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+.comp-parc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 12.5px;
+}
+.comp-parc-row:last-child { border-bottom: none; }
+.comp-parc-n { font-weight: 700; color: var(--text-mid); min-width: 36px; }
+.comp-parc-recebe { color: var(--green); font-weight: 700; }
+.comp-parc-cobra  { color: var(--navy); font-weight: 600; font-size: 11.5px; }
+
+.parc-select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5570' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+.comp-parc-row.highlight {
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: -1px 0;
+}
+.comp-parc-row.highlight .comp-parc-n { color: var(--navy); }
+.comp-empty-parc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 6px 0;
+}
+
+@media (min-width: 640px) {
+  .comp-cards { flex-direction: row; }
+  .comp-card { flex-direction: column; align-items: flex-start; flex: 1; }
+  .comp-card-right { text-align: left; }
+}
 </style>
 </head>
 <body>
@@ -663,7 +784,8 @@ td:first-child { text-align: left; }
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('vm',this)">Visa &amp; Master</button>
     <button class="tab-btn" onclick="switchTab('he',this)">Hiper &amp; Elo</button>
-    <button class="tab-btn" onclick="switchTab('lilas',this)">Comparativo</button>
+    <button class="tab-btn" onclick="switchTab('lilas',this)">PaguéVeloz</button>
+    <button class="tab-btn" onclick="switchTab('comp',this)">Comparativo</button>
   </nav>
 </header>
 
@@ -758,21 +880,66 @@ td:first-child { text-align: left; }
   <!-- ══ COMPARATIVO ════════════════════════════ -->
   <div id="tab-lilas" class="tab-content">
     <div class="input-card">
-      <div class="input-lbl">Valor Base</div>
+      <div class="input-lbl">Valor de Venda</div>
       <div class="input-row">
         <div class="val-wrap">
           <span class="val-prefix">R$</span>
-          <input type="number" class="val-input" id="val-lilas" value="100" min="0" step="0.01" oninput="calcLilas()">
+          <input type="number" class="val-input" id="val-lilas" value="180" min="0" step="0.01" oninput="calcLilas()">
         </div>
         <button class="btn-calc" onclick="calcLilas()">Calcular</button>
         <button class="btn-pdf" onclick="printTab('lilas')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           PDF
         </button>
+        <button class="btn-cliente" onclick="abrirCliente('lilas')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Para o Cliente
+        </button>
       </div>
     </div>
-    <div class="lilas-grid" id="lilas-grid"></div>
+    <div class="chips" id="chips-lilas"></div>
+
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th colspan="4" class="th-section th-lojista">Taxas ao Lojista</th>
+              <th colspan="4" class="th-section th-portador divider-col">Taxas ao Portador</th>
+            </tr>
+            <tr>
+              <th>Parcelas</th><th>Taxa</th><th>Parcela cliente</th><th>Lojista recebe</th>
+              <th class="divider-col">Total a cobrar</th><th>Parcelas</th><th>Parcela cliente</th><th>Lojista recebe</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-lilas"></tbody>
+        </table>
+      </div>
+      <div class="card-list" id="clist-lilas"></div>
+    </div>
   </div>
+
+  <!-- ══ COMPARATIVO ════════════════════════════ -->
+  <div id="tab-comp" class="tab-content">
+    <div class="input-card">
+      <div class="input-lbl">Valor de Venda</div>
+      <div class="input-row">
+        <div class="val-wrap">
+          <span class="val-prefix">R$</span>
+          <input type="number" class="val-input" id="val-comp" value="180" min="0" step="0.01" oninput="calcComp()">
+        </div>
+        <button class="btn-calc" onclick="calcComp()">Calcular</button>
+      </div>
+      <div class="input-lbl" style="margin-top:12px;">Parcelas</div>
+      <div class="input-row">
+        <select class="val-input parc-select" id="parc-comp" onchange="calcComp()">
+          <option value="all">Todas as parcelas</option>
+        </select>
+      </div>
+    </div>
+    <div class="comp-cards" id="comp-cards"></div>
+  </div>
+
 
 </div>
 
@@ -898,7 +1065,10 @@ td:first-child { text-align: left; }
 // ── RATES ──────────────────────────────────────────────────
 const VM={'Débito':0.0159,1:0.0379,2:0.0524,3:0.0628,4:0.0715,5:0.0791,6:0.0849,7:0.0971,8:0.1046,9:0.1122,10:0.1199,11:0.1273,12:0.1374,13:0.1425,14:0.15,15:0.1576,16:0.1652,17:0.1725,18:0.1799};
 const HE={'Débito':0.0199,1:0.0399,2:0.0596,3:0.0671,4:0.0746,5:0.0821,6:0.0897,7:0.0991,8:0.1066,9:0.1141,10:0.1216,11:0.1293,12:0.1394,13:0.1445,14:0.152,15:0.1596,16:0.1672,17:0.1745,18:0.1819};
-const LILAS={'Débito':{vm:0.0139,eh:0.017,amex:null},1:{vm:0.0269,eh:0.0369,amex:0.046},2:{vm:0.0583,eh:0.0583,amex:0.0596},3:{vm:0.077,eh:0.077,amex:0.077},4:{vm:0.0926,eh:0.0926,amex:0.0926},5:{vm:0.1054,eh:0.1054,amex:0.1054},6:{vm:0.1166,eh:0.1166,amex:0.1166},7:{vm:0.1257,eh:0.1257,amex:0.1257},8:{vm:0.1327,eh:0.1327,amex:0.1327},9:{vm:0.1372,eh:0.1372,amex:0.1372},10:{vm:0.1311,eh:0.1311,amex:0.1311},11:{vm:0.143,eh:0.143,amex:0.143},12:{vm:0.1445,eh:0.1445,amex:0.1445},13:{vm:0.158,eh:0.158,amex:0.158},14:{vm:0.153,eh:0.153,amex:0.1549},15:{vm:0.1596,eh:0.1596,amex:0.1626},16:{vm:0.1676,eh:0.1676,amex:0.1703},17:{vm:0.1787,eh:0.1787,amex:0.179},18:{vm:0.188,eh:0.188,amex:0.188}};
+// PaguéVeloz rates (PV PROSPECT 100 + 2026)
+const PV={'Débito':0.0089,1:0.0299,2:0.0408,3:0.0469,4:0.053,5:0.0592,6:0.0653,7:0.074,8:0.0803,9:0.0867,10:0.0931,11:0.0996,12:0.1061,13:0.113,14:0.1195,15:0.1266,16:0.1332,17:0.1397,18:0.1471,19:0.1541,20:0.1608,21:0.1682};
+const PV_CLIENT={'Débito':0.0089,1:0.0308,2:0.0425,3:0.0492,4:0.056,5:0.0629,6:0.0699,7:0.0799,8:0.0873,9:0.0949,10:0.1027,11:0.1106,12:0.1187,13:0.1274,14:0.1357,15:0.145,16:0.1536,17:0.1624,18:0.1724,19:0.1822,20:0.1916,21:0.2023};
+const KEYS_PV=['Débito',1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
 const KEYS=['Débito',1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
 
 // ── FORMAT ─────────────────────────────────────────────────
@@ -978,40 +1148,94 @@ function calcHE(){
 
 // ── LILÁS ──────────────────────────────────────────────────
 function calcLilas(){
-  const valor=parseFloat(document.getElementById('val-lilas').value)||100;
-  const cards=[
-    {key:'vm',label:'Visa e Master',cls:'lh-vm',std:VM},
-    {key:'eh',label:'Elo e Hipercard',cls:'lh-eh',std:HE},
-    {key:'amex',label:'American Express',cls:'lh-amex',std:null}
+  const v=parseFloat(document.getElementById('val-lilas').value)||0;
+  // Build rows: taxa lojista from PV, total cobrar uses PV_CLIENT rate
+  const rows=KEYS_PV.map(k=>{
+    const taxa=PV[k], taxaCliente=PV_CLIENT[k], n=k==='Débito'?null:k;
+    const recebe=v*(1-taxa);
+    const totalCobrar=n?(v/(1-taxaCliente)):null;
+    const parcelaCobrar=n?(v/(1-taxaCliente)/n):null;
+    const parcelaBase=n?v/n:null;
+    return{k,taxa,taxaCliente,n,recebe,parcelaBase,totalCobrar,parcelaCobrar};
+  });
+  renderCardList('clist-lilas',rows,v);
+  // Desktop table
+  document.getElementById('tbody-lilas').innerHTML=rows.map(({k,taxa,n,recebe,parcelaBase,totalCobrar,parcelaCobrar})=>{
+    const deb=k==='Débito',lbl=deb?'Débito':k+'x';
+    return`<tr class="${deb?'is-debito':''}">
+      <td><span class="badge">${lbl}</span></td>
+      <td class="t-taxa">${P(taxa)}</td>
+      <td>${deb?'—':R(parcelaBase)}</td>
+      <td class="t-recebe">${R(recebe)}</td>
+      <td class="divider-col t-cobrar">${deb?'—':R(totalCobrar)}</td>
+      <td class="t-taxa">${deb?'—':n+'x'}</td>
+      <td>${deb?'—':R(parcelaCobrar)}</td>
+      <td class="t-recebe">${deb?'—':R(v)}</td>
+    </tr>`;
+  }).join('');
+  // Chips
+  const deb=rows[0],v1=rows[1],v12=rows.find(r=>r.k===12);
+  document.getElementById('chips-lilas').innerHTML=`
+    <div class="chip"><div class="chip-lbl">Valor de venda</div><div class="chip-val">${R(v)}</div></div>
+    <div class="chip"><div class="chip-lbl">Débito — recebe</div><div class="chip-val green">${R(deb.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">À vista — recebe</div><div class="chip-val green">${R(v1.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">12x — recebe</div><div class="chip-val green">${R(v12.recebe)}</div></div>
+    <div class="chip"><div class="chip-lbl">12x — cobra cliente</div><div class="chip-val red">${R(v12.totalCobrar)}</div></div>`;
+}
+
+// ── COMPARATIVO ────────────────────────────────────────────
+function popularParcelasComp(){
+  const sel=document.getElementById('parc-comp');
+  if(sel.dataset.filled)return;
+  const maxN=Math.max(...KEYS.filter(k=>k!=='Débito').map(Number),...KEYS_PV.filter(k=>k!=='Débito').map(Number));
+  for(let n=1;n<=maxN;n++){
+    const opt=document.createElement('option');
+    opt.value=n;
+    opt.textContent=n+'x';
+    sel.appendChild(opt);
+  }
+  sel.dataset.filled='1';
+}
+
+function calcComp(){
+  popularParcelasComp();
+  const v=parseFloat(document.getElementById('val-comp').value)||0;
+  const parcSel=document.getElementById('parc-comp').value;
+  const filtro=parcSel==='all'?null:parseInt(parcSel,10);
+  const R2=n=>n==null?'—':n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const P2=n=>(n*100).toFixed(2).replace('.',',')+'\u00a0%';
+
+  const machines=[
+    {cls:'card-vm',name:'Visa &amp; Master',debRate:VM['Débito'],
+     rows:KEYS.filter(k=>k!=='Débito').map(k=>({n:k,taxa:VM[k],recebe:v*(1-VM[k]),cobrar:v/(1-VM[k]),parcela:v/(1-VM[k])/k}))},
+    {cls:'card-he',name:'Hiper &amp; Elo',debRate:HE['Débito'],
+     rows:KEYS.filter(k=>k!=='Débito').map(k=>({n:k,taxa:HE[k],recebe:v*(1-HE[k]),cobrar:v/(1-HE[k]),parcela:v/(1-HE[k])/k}))},
+    {cls:'card-pv',name:'PaguéVeloz',debRate:PV['Débito'],
+     rows:KEYS_PV.filter(k=>k!=='Débito').map(k=>({n:k,taxa:PV[k],recebe:v*(1-PV[k]),cobrar:v/(1-PV_CLIENT[k]),parcela:v/(1-PV_CLIENT[k])/k}))}
   ];
-  document.getElementById('lilas-grid').innerHTML=cards.map(ct=>{
-    const mobileRows=KEYS.map(k=>{
-      const lt=LILAS[k][ct.key],deb=k==='Débito',lbl=deb?'Débito':k+'x';
-      if(lt==null) return`<div class="lilas-row${deb?' is-debito':''}"><span class="badge lr-badge">${lbl}</span><div class="lr-data"><div class="lr-item"><div class="lr-lbl">Taxa</div><div class="lr-val">—</div></div></div></div>`;
-      const recebe=valor*(1-lt),st=ct.std?ct.std[k]:lt,tc=(deb||st==null)?null:valor/(1-st),mg=st!=null?st-lt:null,mc=mg==null?'':(mg>=0?'mpos':'mneg');
-      return`<div class="lilas-row${deb?' is-debito':''}"><span class="badge lr-badge">${lbl}</span>
-        <div class="lr-data">
-          <div class="lr-item"><div class="lr-lbl">Taxa lojista</div><div class="lr-val">${P(lt)}</div></div>
-          <div class="lr-item"><div class="lr-lbl">Recebe</div><div class="lr-val green">${R(recebe)}</div></div>
-          ${deb?'':tc!=null?`<div class="lr-item"><div class="lr-lbl">Cobra portador</div><div class="lr-val navy">${R(tc)}</div></div>`:''}
-          ${mg!=null?`<div class="lr-item"><div class="lr-lbl">Margem</div><div class="lr-val ${mc}">${P(mg)}</div></div>`:''}
-        </div></div>`;
-    }).join('');
-    const tblRows=KEYS.map(k=>{
-      const lt=LILAS[k][ct.key],deb=k==='Débito',lbl=deb?'Débito':k+'x';
-      if(lt==null) return`<tr class="${deb?'is-debito':''}"><td><span class="badge">${lbl}</span></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
-      const recebe=valor*(1-lt),st=ct.std?ct.std[k]:lt,tc=(deb||st==null)?null:valor/(1-st),mg=st!=null?st-lt:null,mc=mg==null?'':(mg>=0?'mpos':'mneg');
-      return`<tr class="${deb?'is-debito':''}"><td><span class="badge">${lbl}</span></td><td class="t-taxa">${P(lt)}</td>
-        <td class="t-recebe">${R(recebe)}</td><td class="t-cobrar">${deb?'—':(tc!=null?R(tc):'—')}</td>
-        <td class="${mc}">${mg!=null?P(mg):'—'}</td></tr>`;
-    }).join('');
-    return`<div class="lilas-card">
-      <div class="lilas-hdr ${ct.cls}"><span class="dot"></span>${ct.label}</div>
-      <div class="lilas-rows">${mobileRows}</div>
-      <div class="lilas-tbl-wrap"><table class="lilas-table">
-        <thead><tr><th>Parcelas</th><th>Taxa Lojista</th><th>Recebe</th><th>Cobra Portador</th><th>Margem</th></tr></thead>
-        <tbody>${tblRows}</tbody>
-      </table></div></div>`;
+
+  document.getElementById('comp-cards').innerHTML=machines.map(m=>{
+    const debRecebe=v*(1-m.debRate);
+    const rowsToShow=filtro==null?m.rows:m.rows.filter(r=>Number(r.n)===filtro);
+    const parcRows=rowsToShow.length
+      ? rowsToShow.map(r=>`
+        <div class="comp-parc-row${filtro!=null?' highlight':''}">
+          <span class="comp-parc-n">${r.n}x</span>
+          <span class="comp-parc-recebe">Recebe&nbsp;R$&nbsp;${R2(r.recebe)}</span>
+          <span class="comp-parc-cobra">Cobra&nbsp;R$&nbsp;${R2(r.cobrar)}</span>
+        </div>`).join('')
+      : `<div class="comp-empty-parc">Parcelamento em ${filtro}x não disponível nesta maquininha</div>`;
+    return`<div class="comp-card ${m.cls}">
+      <div style="width:100%">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+          <div>
+            <div class="comp-card-name">${m.name}</div>
+            <div class="comp-card-taxa">Débito ${P2(m.debRate)} — recebe <strong>R$&nbsp;${R2(debRecebe)}</strong></div>
+          </div>
+        </div>
+        <div class="comp-parcelas">${parcRows}</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -1025,7 +1249,7 @@ function switchTab(name,btn){
 
 // ── PDF COMPLETO (só a tabela, via print CSS) ──────────────
 function printTab(tab){
-  const labels={vm:'Visa e Master',he:'Hiper e Elo',lilas:'Comparativo'};
+  const labels={vm:'Visa e Master',he:'Hiper e Elo',lilas:'PaguéVeloz'};
   document.title='Simulador Finamore – '+labels[tab];
   document.body.setAttribute('data-printing',tab);
   window.print();
@@ -1037,9 +1261,31 @@ function printTab(tab){
 let _cRows=[],_cValor=0,_cBandeira='';
 
 function abrirCliente(tipo){
-  const rates=tipo==='vm'?VM:HE;
-  const bandeira=tipo==='vm'?'Visa e Master':'Hiper e Elo';
-  const valor=parseFloat(document.getElementById(tipo==='vm'?'val-vm':'val-he').value)||0;
+  let rates, bandeira, valor;
+  if(tipo==='vm'){rates=VM;bandeira='Visa e Master';valor=parseFloat(document.getElementById('val-vm').value)||0;}
+  else if(tipo==='he'){rates=HE;bandeira='Hiper e Elo';valor=parseFloat(document.getElementById('val-he').value)||0;}
+  else{
+    // PaguéVeloz: use PV_CLIENT rates for total cobrar
+    valor=parseFloat(document.getElementById('val-lilas').value)||0;
+    bandeira='PaguéVeloz';
+    _cRows=KEYS_PV.map(k=>{
+      const taxa=PV[k],taxaCliente=PV_CLIENT[k],n=k==='Débito'?null:k;
+      return{k,taxa,n,recebe:valor*(1-taxa),parcelaBase:n?valor/n:null,
+        totalCobrar:n?valor/(1-taxaCliente):null,
+        parcelaCobrar:n?valor/(1-taxaCliente)/n:null};
+    });
+    _cValor=valor; _cBandeira=bandeira;
+    document.getElementById('modal-bandeira').textContent='Parcelamento — '+bandeira;
+    document.getElementById('modal-valor-txt').textContent=R(valor);
+    document.getElementById('modal-body').innerHTML=_cRows.map(({k,n,totalCobrar,parcelaCobrar})=>{
+      const deb=k==='Débito';
+      if(deb) return`<div class="cr-row is-debito"><div class="cr-left"><span class="cr-badge">Débito</span><span class="cr-desc">Pagamento à vista</span></div><div class="cr-right"><div class="cr-total">${R(valor)}</div><div class="cr-parcel">à vista no débito</div></div></div>`;
+      return`<div class="cr-row"><div class="cr-left"><span class="cr-badge">${k}x</span><span class="cr-desc">${k} parcelas</span></div><div class="cr-right"><div class="cr-total">${R(totalCobrar)}</div><div class="cr-parcel"><strong>${k}x de ${R(parcelaCobrar)}</strong></div></div></div>`;
+    }).join('');
+    document.getElementById('modal-cliente').classList.add('open');
+    document.body.style.overflow='hidden';
+    return;
+  }
   _cRows=buildRows(valor,rates); _cValor=valor; _cBandeira=bandeira;
 
   document.getElementById('modal-bandeira').textContent='Parcelamento — '+bandeira;
@@ -1121,15 +1367,24 @@ function pdfCliente(){
   // Lê os valores dos dois inputs — assim as duas páginas ficam corretas independente de qual modal está aberto
   const valorVM = parseFloat(document.getElementById('val-vm').value)||0;
   const valorHE = parseFloat(document.getElementById('val-he').value)||0;
+  const valorPV = parseFloat(document.getElementById('val-lilas').value)||0;
 
   const rowsVM = buildRows(valorVM, VM);
   const rowsHE = buildRows(valorHE, HE);
+  const rowsPV = KEYS_PV.map(k=>{
+    const taxa=PV[k],taxaCliente=PV_CLIENT[k],n=k==='Débito'?null:k;
+    return{k,taxa,n,recebe:valorPV*(1-taxa),parcelaBase:n?valorPV/n:null,
+      totalCobrar:n?valorPV/(1-taxaCliente):null,
+      parcelaCobrar:n?valorPV/(1-taxaCliente)/n:null};
+  });
 
-  // Gera duas páginas separadas por quebra de página
+  // Gera três páginas separadas por quebra de página
   document.getElementById('print-page').innerHTML =
     buildPrintPage(rowsVM, valorVM, 'Visa e Master') +
     '<div class="pp-page-break"></div>' +
-    buildPrintPage(rowsHE, valorHE, 'Hiper e Elo');
+    buildPrintPage(rowsHE, valorHE, 'Hiper e Elo') +
+    '<div class="pp-page-break"></div>' +
+    buildPrintPage(rowsPV, valorPV, 'PaguéVeloz');
 
   document.body.setAttribute('data-printing','cliente');
   window.print();
@@ -1137,7 +1392,7 @@ function pdfCliente(){
 }
 
 // ── INIT ───────────────────────────────────────────────────
-calcVM(); calcHE(); calcLilas();
+calcVM(); calcHE(); calcLilas(); calcComp();
 </script>
 
 <!-- Página dedicada de impressão para o cliente -->
