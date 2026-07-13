@@ -1210,7 +1210,7 @@ function calcComp(){
      rows:KEYS.filter(k=>k!=='Débito').map(k=>({n:k,taxa:VM[k],recebe:v*(1-VM[k]),cobrar:v/(1-VM[k]),parcela:v/(1-VM[k])/k}))},
     {cls:'card-he',name:'Hiper &amp; Elo',debRate:HE['Débito'],
      rows:KEYS.filter(k=>k!=='Débito').map(k=>({n:k,taxa:HE[k],recebe:v*(1-HE[k]),cobrar:v/(1-HE[k]),parcela:v/(1-HE[k])/k}))},
-    {cls:'card-pv',name:'PaguéVeloz',debRate:PV['Débito'],
+    {cls:'card-pv',name:'Pague Veloz',debRate:PV['Débito'],
      rows:KEYS_PV.filter(k=>k!=='Débito').map(k=>({n:k,taxa:PV[k],recebe:v*(1-PV[k]),cobrar:v/(1-PV_CLIENT[k]),parcela:v/(1-PV_CLIENT[k])/k}))}
   ];
 
